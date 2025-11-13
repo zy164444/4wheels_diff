@@ -1,0 +1,19 @@
+{
+    "python.pythonPath": "/usr/bin/python3",
+
+    "python.analysis.extraPaths": [
+        "/opt/ros/foxy/lib/python3.8/site-packages",
+        "/usr/lib/python3/dist-packages"
+    ],
+
+    "python.autoComplete.showAdvancedMembers": true,
+    "python.analysis.useLibraryCodeForTypes": true,
+
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": false,
+
+    "python.formatting.provider": "autopep8",
+
+    "editor.formatOnSave": true
+}

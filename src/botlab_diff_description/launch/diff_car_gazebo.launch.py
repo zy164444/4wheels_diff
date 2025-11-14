@@ -47,6 +47,19 @@ def generate_launch_description():
         ],
         output="screen",
     )
+    
+    # 3.1 再 spawn 一个箱子当障碍物
+    obstacle_sdf = os.path.join(pkg_share, "models", "obstacle_box.sdf")
+    spawn_box = Node(
+        package="gazebo_ros",
+        executable="spawn_entity.py",
+        arguments=[
+            "-file", obstacle_sdf,
+            "-entity", "obstacle_box",
+        ],
+        output="screen",
+    )
+
 
     # 4. 起两个 ros2_control 控制器
     joint_state_broadcaster_spawner = Node(
@@ -68,6 +81,7 @@ def generate_launch_description():
             gazebo,
             robot_state_publisher,
             spawn_entity,
+            spawn_box,  
             joint_state_broadcaster_spawner,
             wheel_velocity_controller_spawner,
         ]

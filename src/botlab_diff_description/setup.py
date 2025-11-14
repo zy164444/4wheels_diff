@@ -11,14 +11,27 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
+
+        # package.xml 安装
         ('share/' + package_name, ['package.xml']),
+
+        # 安装 launch 文件
         (os.path.join('share', package_name, 'launch'),
-            glob('launch/*.launch.py')),
+            glob(os.path.join('launch', '*.launch.py'))),
+
+        # 安装 URDF（注意路径改成相对包名目录）
         (os.path.join('share', package_name, 'urdf'),
             glob(os.path.join(package_name, 'urdf', '*.xacro'))),
+
+        # 安装 config（yaml）
         (os.path.join('share', package_name, 'config'),
             glob(os.path.join(package_name, 'config', '*.yaml'))),
+
+        # ⭐ 安装 models 目录里的 sdf 文件
+        (os.path.join('share', package_name, 'models'),
+            glob(os.path.join('models', '*.sdf'))),
     ],
+
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='dp',

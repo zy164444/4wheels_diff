@@ -16,6 +16,8 @@ setup(
             glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'urdf'),
             glob(os.path.join(package_name, 'urdf', '*.xacro'))),
+        (os.path.join('share', package_name, 'config'),
+            glob(os.path.join(package_name, 'config', '*.yaml'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -26,6 +28,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'wheel_keyboard_teleop = botlab_diff_description.wheel_keyboard_teleop:main',
         ],
     },
 )

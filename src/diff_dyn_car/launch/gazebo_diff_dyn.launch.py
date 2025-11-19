@@ -12,6 +12,9 @@ def generate_launch_description():
     pkg_share = FindPackageShare('diff_dyn_car')
     pkg_path = get_package_share_directory('diff_dyn_car')
 
+    # ⚠️ 这里用 pkg_path（真实字符串路径），不能用 pkg_share
+    obstacle_sdf = os.path.join(pkg_path, 'models', 'obstacle_box.sdf')
+
     # world 参数
     world = LaunchConfiguration('world')
 
@@ -21,11 +24,11 @@ def generate_launch_description():
         PathJoinSubstitution([
             pkg_share,
             'urdf',
-            'diff_dyn_car.urdf.xacro'   # 按你的文件名修改
+            'diff_dyn_car.urdf.xacro'
         ])
     ])
 
-    # ========== 2. Node: robot_state_publisher ==========
+    # ========== 2. robot_state_publisher ==========
     rsp_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -36,15 +39,28 @@ def generate_launch_description():
         }]
     )
 
-    # ========== 3. spawn gazebo 里的机器人 ==========
+    # ========== 3. spawn 机器人 ==========
     spawn = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
         arguments=[
             '-entity', 'diff_dyn_car',
             '-topic', 'robot_description'
+            '-x', '1.0', '-y', '0.0', '-z', '0.035',
         ],
         output='screen',
+    )
+
+    # ========== 3.5 spawn 障碍物 box ==========
+    spawn_obstacle = Node(
+        package='gazebo_ros',
+        executable='spawn_entity.py',
+        arguments=[
+            '-entity', 'obstacle_box',
+            '-file',   obstacle_sdf,
+            '-x', '1.0', '-y', '0.0', '-z', '0.035',
+        ],
+        output='screen'
     )
 
     # ========== 4. 你的 effort 控制节点 ==========
@@ -67,17 +83,15 @@ def generate_launch_description():
         launch_arguments={'world': world}.items()
     )
 
-    # ========== 6. 自动 spawn ros2_control 控制器 ==========
-    # joint_state_broadcaster
+    # ========== 6. ros2_control 控制器 ==========
     spawner_jsb = Node(
         package='controller_manager',
-        executable='spawner.py',   # 在你机器上是 spawner.py
+        executable='spawner.py',
         arguments=['joint_state_broadcaster',
                    '--controller-manager', '/controller_manager'],
         output='screen'
     )
 
-    # wheel_effort_controller
     spawner_effort = Node(
         package='controller_manager',
         executable='spawner.py',
@@ -97,13 +111,13 @@ def generate_launch_description():
         description='Gazebo world file'
     )
 
-    # return
     return LaunchDescription([
         declare_world,
         gazebo,
         rsp_node,
         spawn,
-        spawner_jsb,          # ⭐ 自动加载 joint_state_broadcaster
-        spawner_effort,       # ⭐ 自动加载 wheel_effort_controller
+        spawn_obstacle,
+        spawner_jsb,
+        spawner_effort,
         diff_effort_controller
     ])

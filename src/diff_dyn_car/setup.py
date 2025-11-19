@@ -1,4 +1,6 @@
 from setuptools import setup
+import os
+from glob import glob
 
 package_name = 'diff_dyn_car'
 
@@ -14,6 +16,7 @@ setup(
         ('share/' + package_name + '/config', ['config/diff_dyn_car_ros2_control.yaml']),
         ('share/' + package_name + '/launch', ['launch/gazebo_diff_dyn.launch.py']),
         ('share/' + package_name + '/launch', ['launch/display.launch.py']),
+        (os.path.join('share', package_name, 'models'),glob(os.path.join('models', '*.sdf'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

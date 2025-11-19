@@ -32,10 +32,36 @@
   </link>
 
   <!-- 轮子宏 -->
+  <!-- 轮子宏：带简易“悬挂”的版本 -->
   <xacro:macro name="wheel" params="name x y">
+    <!-- 悬挂连杆：在 base_link 和 轮子 中间插一节 -->
+    <link name="${name}_susp">
+      <inertial>
+        <mass value="0.01"/>
+        <inertia ixx="1e-5" ixy="0.0" ixz="0.0"
+                 iyy="1e-5" iyz="0.0"
+                 izz="1e-5"/>
+      </inertial>
+    </link>
+
+    <!-- 悬挂关节：允许沿 z 方向上下走一小段（模拟压缩） -->
+    <joint name="${name}_susp_joint" type="prismatic">
+      <parent link="base_link"/>
+      <child  link="${name}_susp"/>
+      <!-- 位置还是用你之前的 x,y,z -->
+      <origin xyz="${x} ${y} -${base_height/2}" rpy="0 0 0"/>
+      <!-- z 轴方向：上下弹跳 -->
+      <axis xyz="0 0 1"/>
+      <!-- 悬挂行程：最多向下压 2 cm -->
+      <limit lower="-0.02" upper="0.0" effort="200.0" velocity="1.0"/>
+      <!-- 悬挂刚度 + 阻尼：可以再按手感调 -->
+      <dynamics spring_stiffness="1500.0" damping="50.0"/>
+    </joint>
+
+    <!-- 真正的轮子本体（和你之前一样） -->
     <link name="${name}">
       <visual>
-        <origin rpy="1.5708 0 0"/>
+        <origin rpy="1.57079632679 0 0"/>
         <geometry>
           <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
         </geometry>
@@ -44,18 +70,26 @@
         </material>
       </visual>
       <collision>
-        <origin rpy="1.5708 0 0"/>
+        <origin rpy="1.57079632679 0 0"/>
         <geometry>
           <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
         </geometry>
         <surface>
           <contact>
-            <ode/>
+            <ode>
+              <!-- 略微可压入地面，避免太硬 -->
+              <kp>5e4</kp>
+              <kd>2.0</kd>
+              <min_depth>0.001</min_depth>
+            </ode>
           </contact>
           <friction>
             <ode>
-              <mu>0.7</mu>
-              <mu2>0.2</mu2>
+              <!-- 仍然保留你之前设置的摩擦和滑移 -->
+              <mu>0.8</mu>
+              <mu2>0.8</mu2>
+              <slip1>0.2</slip1>   <!-- 纵向滑移 -->
+              <slip2>0.2</slip2>   <!-- 横向滑移 -->
             </ode>
           </friction>
         </surface>
@@ -68,13 +102,18 @@
       </inertial>
     </link>
 
+    <!-- 保持原来的旋转关节名字：${name}_joint（给 ros2_control 用） -->
     <joint name="${name}_joint" type="continuous">
-      <parent link="base_link"/>
-      <child link="${name}"/>
-      <origin xyz="${x} ${y} -${base_height/2}" rpy="0 0 0"/>
+      <!-- 注意：现在是挂在 悬挂连杆 上 -->
+      <parent link="${name}_susp"/>
+      <child  link="${name}"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <axis xyz="0 1 0"/>
+      <limit effort="5.0" velocity="100.0"/>
+      <dynamics damping="0.01" friction="0.1"/>
     </joint>
   </xacro:macro>
+
 
   <!-- 四个轮子 -->
   <xacro:wheel name="left_front_wheel"
@@ -100,21 +139,25 @@
       <command_interface name="effort"/>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
+      <state_interface name="effort"/>
     </joint>
     <joint name="right_front_wheel_joint">
       <command_interface name="effort"/>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
+      <state_interface name="effort"/>
     </joint>
     <joint name="left_behind_wheel_joint">
       <command_interface name="effort"/>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
+      <state_interface name="effort"/>
     </joint>
     <joint name="right_behind_wheel_joint">
       <command_interface name="effort"/>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
+      <state_interface name="effort"/>
     </joint>
   </ros2_control>
 

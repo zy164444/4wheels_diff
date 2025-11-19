@@ -1,0 +1,114 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="push_box_world">
+
+    <!-- 地面和平行光 -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- 黑色边界框：[-2.0, 2.0] 方形边界，用四条细长 box 组成 -->
+    <model name="boundary_frame">
+      <static>true</static>
+      <!-- 边界高度略抬起一点，避免和地面 z=0 完全重合 -->
+      <pose>0 0 0.02 0 0 0</pose>
+
+      <link name="frame_link">
+
+        <!-- 上边：y = 2.0，长度 4.0，厚度 0.02，高度 0.05 -->
+        <visual name="top_visual">
+          <pose>0 2.0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>4.0 0.02 0.05</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0 0 0 1</ambient>
+            <diffuse>0 0 0 1</diffuse>
+          </material>
+        </visual>
+        <collision name="top_collision">
+          <pose>0 2.0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>4.0 0.02 0.05</size>
+            </box>
+          </geometry>
+        </collision>
+
+        <!-- 下边：y = -2.0 -->
+        <visual name="bottom_visual">
+          <pose>0 -2.0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>4.0 0.02 0.05</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0 0 0 1</ambient>
+            <diffuse>0 0 0 1</diffuse>
+          </material>
+        </visual>
+        <collision name="bottom_collision">
+          <pose>0 -2.0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>4.0 0.02 0.05</size>
+            </box>
+          </geometry>
+        </collision>
+
+        <!-- 左边：x = -2.0 -->
+        <visual name="left_visual">
+          <pose>-2.0 0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.02 4.0 0.05</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0 0 0 1</ambient>
+            <diffuse>0 0 0 1</diffuse>
+          </material>
+        </visual>
+        <collision name="left_collision">
+          <pose>-2.0 0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.02 4.0 0.05</size>
+            </box>
+          </geometry>
+        </collision>
+
+        <!-- 右边：x = 2.0 -->
+        <visual name="right_visual">
+          <pose>2.0 0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.02 4.0 0.05</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0 0 0 1</ambient>
+            <diffuse>0 0 0 1</diffuse>
+          </material>
+        </visual>
+        <collision name="right_collision">
+          <pose>2.0 0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.02 4.0 0.05</size>
+            </box>
+          </geometry>
+        </collision>
+
+      </link>
+    </model>
+
+  </world>
+</sdf>

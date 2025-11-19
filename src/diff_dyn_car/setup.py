@@ -17,6 +17,7 @@ setup(
         ('share/' + package_name + '/launch', ['launch/gazebo_diff_dyn.launch.py']),
         ('share/' + package_name + '/launch', ['launch/display.launch.py']),
         (os.path.join('share', package_name, 'models'),glob(os.path.join('models', '*.sdf'))),
+        (os.path.join('share', package_name, 'worlds'),glob(os.path.join('worlds', '*.world'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

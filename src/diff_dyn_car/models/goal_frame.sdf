@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="goal_frame">
+    <!-- 绝对静态，不参与物理 -->
+    <static>true</static>
+
+    <!-- 整体位置由 spawn_entity.py 决定 -->
+    <!-- z = 0.001，贴地但不完全重合 -->
+    <pose>0 0 0.001 0 0 0</pose>
+
+    <link name="frame_link">
+
+      <!-- 上边 -->
+      <visual name="top_visual">
+        <pose>0 0.05 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <!-- 厚度修改为 0.01 -->
+            <size>0.1 0.01 0.001</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.8 0.1 1</ambient>
+          <diffuse>0.1 0.8 0.1 1</diffuse>
+        </material>
+      </visual>
+
+      <!-- 下边 -->
+      <visual name="bottom_visual">
+        <pose>0 -0.05 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.01 0.001</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.8 0.1 1</ambient>
+          <diffuse>0.1 0.8 0.1 1</diffuse>
+        </material>
+      </visual>
+
+      <!-- 左边 -->
+      <visual name="left_visual">
+        <pose>-0.05 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.1 0.001</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.8 0.1 1</ambient>
+          <diffuse>0.1 0.8 0.1 1</diffuse>
+        </material>
+      </visual>
+
+      <!-- 右边 -->
+      <visual name="right_visual">
+        <pose>0.05 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.1 0.001</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.8 0.1 1</ambient>
+          <diffuse>0.1 0.8 0.1 1</diffuse>
+        </material>
+      </visual>
+
+    </link>
+  </model>
+</sdf>

@@ -8,16 +8,8 @@
   <xacro:property name="base_width"   value="0.11"/>
   <xacro:property name="base_height"  value="0.017"/>
 
-  <!-- base_link -->
+  <!-- base_link：只做物理，不画外观 -->
   <link name="base_link">
-    <visual>
-      <geometry>
-        <box size="${base_length} ${base_width} ${base_height}"/>
-      </geometry>
-      <material name="blue">
-        <color rgba="0.1 0.3 0.9 1.0"/>
-      </material>
-    </visual>
     <collision>
       <geometry>
         <box size="${base_length} ${base_width} ${base_height}"/>
@@ -30,6 +22,40 @@
                izz="0.00332"/>
     </inertial>
   </link>
+
+  <!-- 前半段底盘：+x，车头 -->
+  <link name="base_front_link">
+    <visual>
+      <geometry>
+        <!-- 长度一半 -->
+        <box size="${base_length/2} ${base_width} ${base_height}"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="base_front_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="base_front_link"/>
+    <!-- 挂在 +x 方向 1/4 处 -->
+    <origin xyz="${base_length/4} 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- 后半段底盘：-x，车尾 -->
+  <link name="base_back_link">
+    <visual>
+      <geometry>
+        <box size="${base_length/2} ${base_width} ${base_height}"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="base_back_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="base_back_link"/>
+    <!-- 挂在 -x 方向 1/4 处 -->
+    <origin xyz="${-base_length/4} 0 0" rpy="0 0 0"/>
+  </joint>
+
 
   <!-- 轮子宏 -->
   <!-- 轮子宏：带简易“悬挂”的版本 -->
@@ -86,8 +112,8 @@
           <friction>
             <ode>
               <!-- 仍然保留你之前设置的摩擦和滑移 -->
-              <mu>0.8</mu>
-              <mu2>0.8</mu2>
+              <mu>1</mu>
+              <mu2>0.5</mu2>
               <slip1>0.2</slip1>   <!-- 纵向滑移 -->
               <slip2>0.2</slip2>   <!-- 横向滑移 -->
             </ode>
@@ -173,6 +199,32 @@
       <!-- 在 xacro 里用 $(find 包名) 语法 -->
       <parameters>$(find diff_dyn_car)/config/diff_dyn_car_ros2_control.yaml</parameters>
     </plugin>
+  </gazebo>
+
+  <!-- 轮子黑色 -->
+  <gazebo reference="left_front_wheel">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="right_front_wheel">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="left_behind_wheel">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="right_behind_wheel">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <!-- 车身：前半黄、后半蓝 -->
+  <gazebo reference="base_front_link">
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+  <gazebo reference="base_back_link">
+    <material>Gazebo/Blue</material>
   </gazebo>
 
 

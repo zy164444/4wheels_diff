@@ -6,8 +6,8 @@ import xacro
 
 def generate_launch_description():
 
-    pkg_path = get_package_share_directory("botlab_diff_description")
-    xacro_file = os.path.join(pkg_path, "urdf", "diff_drive_car.urdf.xacro")
+    pkg_path = get_package_share_directory("diff_dyn_car")
+    xacro_file = os.path.join(pkg_path, "urdf", "diff_dyn_car.urdf.xacro")
 
     # 处理 xacro → URDF
     robot_description_config = xacro.process_file(xacro_file)

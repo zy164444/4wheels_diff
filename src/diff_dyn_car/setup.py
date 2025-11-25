@@ -30,6 +30,7 @@ setup(
         'console_scripts': [
             'diff_effort_controller = diff_dyn_car.diff_effort_controller:main',
             'wheel_odom_monitor = diff_dyn_car.wheel_odom_monitor:main',
+            'udp_joy_to_effort = diff_dyn_car.udp_joy_to_effort:main',
         ],
     },
 )

@@ -16,6 +16,8 @@ setup(
         ('share/' + package_name + '/config', ['config/diff_dyn_car_ros2_control.yaml']),
         ('share/' + package_name + '/launch', ['launch/gazebo_diff_dyn.launch.py']),
         ('share/' + package_name + '/launch', ['launch/display.launch.py']),
+        ('share/' + package_name + '/launch', ['launch/diff_dyn_car_empty.launch.py']),
+        (os.path.join('share', package_name, 'launch'),glob(os.path.join('launch', '*.py'))),
         (os.path.join('share', package_name, 'models'),glob(os.path.join('models', '*.sdf'))),
         (os.path.join('share', package_name, 'worlds'),glob(os.path.join('worlds', '*.world'))),
     ],
@@ -31,6 +33,7 @@ setup(
             'diff_effort_controller = diff_dyn_car.diff_effort_controller:main',
             'wheel_odom_monitor = diff_dyn_car.wheel_odom_monitor:main',
             'udp_joy_to_effort = diff_dyn_car.udp_joy_to_effort:main',
+            'car_state_logger = diff_dyn_car.car_state_logger:main',
         ],
     },
 )

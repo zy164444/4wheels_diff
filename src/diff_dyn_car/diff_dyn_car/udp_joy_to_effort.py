@@ -4,7 +4,7 @@ import json
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Float64MultiArray, Bool   # ✅ 多了 Bool
 
 
 class UdpJoyToEffort(Node):
@@ -22,10 +22,17 @@ class UdpJoyToEffort(Node):
         self.tau_turn_max    = self.get_parameter('tau_turn_max').value
         self.tau_reverse_max = self.get_parameter('tau_reverse_max').value
 
-        # 发布器
+        # 发布轮子 effort
         self.pub_effort = self.create_publisher(
             Float64MultiArray,
             '/wheel_effort_controller/commands',
+            10
+        )
+
+        # ✅ 发布记录开关
+        self.pub_record = self.create_publisher(
+            Bool,
+            '/record_toggle',
             10
         )
 
@@ -48,6 +55,9 @@ class UdpJoyToEffort(Node):
 
         self.get_logger().info("✨ Joystick calibration started... 请不要动手柄")
 
+        # ✅ 记录当前是否在录制（配合 car_state_logger）
+        self.recording = False
+
         # 100Hz 轮询
         self.timer = self.create_timer(0.01, self._poll_udp)
 
@@ -66,6 +76,17 @@ class UdpJoyToEffort(Node):
         lx_raw = -float(msg.get("lx", 0.0))
         lt_raw = float(msg.get("lt", 0.0))
         rt_raw = float(msg.get("rt", 0.0))
+
+        # ✅ Windows 端已经做完去抖，这里直接把 l3 当“事件”
+        l3 = int(msg.get("l3", 0))
+        if l3 == 1:
+            # 切换记录状态
+            self.recording = not self.recording
+            self.pub_record.publish(Bool(data=self.recording))
+            if self.recording:
+                self.get_logger().info("🟢 L3 → START RECORDING")
+            else:
+                self.get_logger().info("🔴 L3 → STOP RECORDING")
 
         # ========== 校准阶段 ==========
         if self.calib_needed:

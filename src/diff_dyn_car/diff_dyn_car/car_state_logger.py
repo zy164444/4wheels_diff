@@ -3,9 +3,11 @@ import rclpy
 from rclpy.node import Node
 from gazebo_msgs.msg import ModelStates
 from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Bool          # ✅ 已经 import，用来订阅开关
 import csv
 import time
 import math
+import os
 
 
 class CarStateLogger(Node):
@@ -14,11 +16,20 @@ class CarStateLogger(Node):
 
         self.car_name = 'diff_dyn_car'
 
+        # ✅ 是否正在记录，默认不记录
+        self.is_recording = False
+
         # 创建 CSV 文件
         timestamp = time.strftime("%Y%m%d_%H%M%S", time.localtime())
-        self.filename = f"car_log_{timestamp}.csv"
+
+        # 保存路径
+        save_dir = "/home/dp/ros2_ws/data"
+        os.makedirs(save_dir, exist_ok=True)
+
+        self.filename = f"{save_dir}/car_log_{timestamp}.csv"
         self.file = open(self.filename, "w", newline='')
         self.writer = csv.writer(self.file)
+
 
         # 写表头（加上左右轮 effort）
         self.writer.writerow([
@@ -46,13 +57,32 @@ class CarStateLogger(Node):
             10
         )
 
+        # ✅ 订阅记录开关 /record_toggle（Bool: True=开始，False=停止）
+        self.sub_toggle = self.create_subscription(
+            Bool,
+            '/record_toggle',
+            self.cb_toggle,
+            10
+        )
+
         # 保存最近一次的左右轮力矩
         self.last_tau_L = 0.0
         self.last_tau_R = 0.0
 
         self.start_time = self.get_clock().now()
 
-        self.get_logger().info(f"🚗 CarStateLogger started, saving to {self.filename}")
+        self.get_logger().info(
+            f"🚗 CarStateLogger started, log file: {self.filename}, waiting for /record_toggle..."
+        )
+
+    # ✅ 收到开关信号时，更新 is_recording
+    def cb_toggle(self, msg: Bool):
+        self.is_recording = msg.data
+        if self.is_recording:
+            self.writer.writerow(["--- NEW RECORDING START ---"])
+            self.get_logger().info("🟢 RECORDING STARTED")
+        else:
+            self.get_logger().info("🔴 RECORDING STOPPED")
 
     def quat_to_yaw(self, qx, qy, qz, qw):
         # ZYX 欧拉角，只取 yaw
@@ -73,6 +103,10 @@ class CarStateLogger(Node):
 
     def cb_states(self, msg: ModelStates):
         if self.car_name not in msg.name:
+            return
+
+        # ✅ 如果当前没开记录，直接返回，不写入 CSV
+        if not self.is_recording:
             return
 
         idx = msg.name.index(self.car_name)
@@ -110,7 +144,7 @@ class CarStateLogger(Node):
         tau_L = self.last_tau_L
         tau_R = self.last_tau_R
 
-        # 写入 CSV
+        # 写入 CSV（只在 is_recording == True 时才会走到这里）
         self.writer.writerow([
             now,
             x, y, z,
